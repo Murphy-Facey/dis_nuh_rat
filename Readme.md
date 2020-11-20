@@ -35,3 +35,13 @@ python server.py
 # and in another terminal (or machine), run the client
 python client.py 
 ```
+
+## Features
+
+- [x] Give server access to the webcam
+    - [ ] Allows the server to neatly closed the client's webcam
+- [x] Get access to their shell 
+    - [x] Make it remember the changes in the directories
+- [X] Get the client's key strokes
+    - [ ] Allows the client's typing while keylogger is running
+- [ ] Bind to some application
