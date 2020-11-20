@@ -17,7 +17,7 @@ cd C:\Users\[user-name]\AppData\Local\Programs\Python\Python37\lib\site-packages
 # or 
 cd C:\Users\[user-name]\AppData\Roaming\Python\Python37\lib\site-packages\pyHook\HookManager.py
 ```
-... and change replace all 'keybooard_hook' to 'key_hook' using <kbd>ctrl<kbd>+<kbd>H<kbd>
+... and change replace all 'keybooard_hook' to 'key_hook' using <kbd>ctrl</kbd>+<kbd>H</kbd>
 
 Depending on your version of Windows, numpy may not work. If so, uninstall and re-install it but a older version than the one that was installed. Use the following command.
 
