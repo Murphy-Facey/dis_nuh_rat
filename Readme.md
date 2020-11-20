@@ -45,3 +45,14 @@ python client.py
 - [X] Get the client's key strokes
     - [ ] Allows the client's typing while keylogger is running
 - [ ] Bind to some application
+
+## Group Members
+- Group Member 1
+    - Name: Murphy Facey
+    - ID: 1703219
+- Group Member 2
+    - Name: Andre Cameron
+    - ID: 1701496
+- Group Member 3
+    - Name: Leon Scott
+    - ID: 1700483
