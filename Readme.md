@@ -11,6 +11,14 @@ pip install pyHook-1.5.1-cp37-cp37m-win_amd64.whl
 ```
 **Please note: you have to download the wheel that is for your version of python and your window's architecture**
 
+For the pyHook, you will have to find the HookManager.py file, possibly at the following path **(in windows only)**
+```
+cd C:\Users\[user-name]\AppData\Local\Programs\Python\Python37\lib\site-packages\pyHook\HookManager.py
+# or 
+cd C:\Users\[user-name]\AppData\Roaming\Python\Python37\lib\site-packages\pyHook\HookManager.py
+```
+... and change replace all 'keybooard_hook' to 'key_hook' using <kbd>ctrl<kbd>+<kbd>H<kbd>
+
 Depending on your version of Windows, numpy may not work. If so, uninstall and re-install it but a older version than the one that was installed. Use the following command.
 
 ```
