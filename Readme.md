@@ -51,7 +51,7 @@ python client.py
 - [x] Get access to their shell 
     - [x] Make it remember the changes in the directories
 - [X] Get the client's key strokes
-    - [ ] Allows the client's typing while keylogger is running
+    - [x] Allows the client's typing while keylogger is running
 - [ ] Bind to some application
 
 ## Group Members
